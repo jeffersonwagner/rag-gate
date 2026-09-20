@@ -1,7 +1,6 @@
 """The documentary gate: decides whether the LLM may be called at all.
 
 This is the core of rag-gate (see docs/adr/0001-domain-agnostic-core.md).
-Full implementation lands in Phase 1.
 """
 
 from __future__ import annotations
@@ -14,7 +13,7 @@ class DocumentGate:
     """Refuses to let a question through to the LLM without coverage."""
 
     def __init__(self, coverage: CoverageMap) -> None:
-        self._coverage = coverage
+        self.coverage = coverage
 
     def check(self, topic: str) -> GateDecision:
         """Return a GateDecision for ``topic``.
@@ -23,7 +22,7 @@ class DocumentGate:
         ``missing_documents_hint`` explains what to add — the caller's LLM
         must never be invoked for a refused topic.
         """
-        if self._coverage.has_coverage(topic):
+        if self.coverage.has_coverage(topic):
             return GateDecision(allowed=True, topic=topic, reason="documented")
         return GateDecision(
             allowed=False,

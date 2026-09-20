@@ -51,18 +51,23 @@ sobre LangChain ou LlamaIndex, sem exigir que você adote um framework novo.
 
 ## Status
 
-Este repositório está na **Fase 0**: configuração do repositório, licença,
-CI e o esqueleto do projeto. A lógica principal (`gate.py`, `guardrails.py`,
-as interfaces plugáveis de provider/store/embedding) chega na Fase 1. Veja
-[`docs/architecture.md`](docs/architecture.md) para o desenho completo e
-[`docs/adr/`](docs/adr) para o raciocínio por trás de cada decisão.
+**Fase 1 concluída.** O núcleo está implementado e testado: o gate, o mapa
+de cobertura (YAML/JSON), a verificação de citação e o retriever com gate
+embutido, além de implementações de referência — `InMemoryStore` e
+`ChromaStore` para vetores, OpenAI/sentence-transformers para embeddings, e
+Anthropic/OpenAI/Ollama para geração. Ainda não há CLI nem exemplo
+end-to-end — isso chega na Fase 2. Veja [`docs/architecture.md`](docs/architecture.md)
+para o desenho completo e [`docs/adr/`](docs/adr) para o raciocínio por
+trás de cada decisão.
 
 ## Desenvolvimento
 
 Requer Python 3.11+ e [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --all-extras
+# sentence-transformers fica de fora de propósito — puxa um download de
+# GBs do PyTorch. Adicione --extra sentence-transformers se precisar dele.
+uv sync --extra dev --extra anthropic --extra openai --extra ollama --extra chroma --extra pdf
 uv run pytest
 uv run ruff check .
 ```

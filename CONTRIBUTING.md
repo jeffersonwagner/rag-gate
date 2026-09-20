@@ -1,27 +1,39 @@
 # Contributing
 
-Thanks for your interest in `rag-gate`. The project is in **Phase 0 /
-Phase 1** — the core API (`gate.py`, `guardrails.py`, the provider/store/
-embedding interfaces) is still being designed, so it isn't ready for
-external contributions yet.
+Thanks for your interest in `rag-gate`. The core (Phase 1) is implemented
+and tested — see [`docs/architecture.md`](docs/architecture.md) for what's
+done and what's next. The CLI and runnable examples (Phase 2) are still
+being built, so the project isn't taking large external contributions yet,
+but feedback, bug reports, and small fixes are welcome.
 
-Once the core lands (see [`docs/architecture.md`](docs/architecture.md) for
-the roadmap), this file will describe:
+Good places to help right now:
 
-- how to set up a dev environment (`uv sync --all-extras`)
-- coding style (`ruff`, enforced in CI)
-- how to add a new provider / vector store / embedding backend
-- how PRs are reviewed
-
-Until then, feel free to open an issue with feedback or questions.
+- `stores/pgvector.py` and `stores/qdrant.py` are typed stubs — a real
+  implementation with a docker-compose-based integration test would be
+  very welcome.
+- Anything in `docs/adr/` you disagree with — open an issue with the
+  alternative and the trade-off.
 
 ## Development setup
 
 ```bash
-uv sync --all-extras
+# Skips sentence-transformers on purpose — it pulls in a multi-GB PyTorch
+# download. Add --extra sentence-transformers if you're touching that file.
+uv sync --extra dev --extra anthropic --extra openai --extra ollama --extra chroma --extra pdf
 uv run pytest
 uv run ruff check .
+uv run mypy src/rag_gate
 ```
+
+## Adding a new provider / store / embedder
+
+Implement the relevant `Protocol` in `providers/base.py`, `stores/base.py`,
+or `embeddings/base.py`. Import the vendor SDK lazily (inside `__init__` or
+the method that needs it, not at module level) and raise `ImportError` with
+a message naming the extra to install — see any existing implementation
+(e.g. `providers/anthropic.py`) for the pattern. Add the SDK as a new
+optional dependency in `pyproject.toml`, and mock the SDK client in tests
+rather than calling the real API (see `tests/test_providers.py`).
 
 ## Commit style
 

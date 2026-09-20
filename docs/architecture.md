@@ -37,21 +37,24 @@ missing          ▼
 
 ## 3. Components
 
-| Layer | Module | Responsibility | Replaceable by |
+| Layer | Module | Responsibility | Status |
 |---|---|---|---|
-| Gate | `gate.py` | decide: call the LLM or refuse, based on coverage | — |
-| Coverage | `coverage.py` | topic → documents map, the gate's source of truth | — |
-| Retrieval | `retriever.py` | wraps a `VectorStore`, applies the gate before generation | — |
-| Reliability | `guardrails.py` | citation extraction + post-generation verification | — |
-| Generation | `providers/*` | one `LLMProvider` per backend | Anthropic, OpenAI, Ollama, or a custom implementation |
-| Storage | `stores/*` | one `VectorStore` per backend | Chroma, pgvector, Qdrant, in-memory |
-| Embeddings | `embeddings/*` | one embedding backend | sentence-transformers, OpenAI, custom |
-| Ingestion | `loaders/*` | text extraction, with automatic OCR fallback for scanned PDFs | — |
+| Gate | `gate.py` | decide: call the LLM or refuse, based on coverage | done |
+| Coverage | `coverage.py` | topic → documents map (YAML/JSON), the gate's source of truth | done |
+| Retrieval | `retriever.py` | wraps an `Embedder` + `VectorStore`, applies the gate first | done |
+| Reliability | `guardrails.py` | citation extraction + post-generation verification (`build_answer`) | done |
+| Generation | `providers/*` | one `LLMProvider` per backend | Anthropic, OpenAI, Ollama implemented |
+| Storage | `stores/*` | one `VectorStore` per backend | `InMemoryStore`, `ChromaStore` implemented; pgvector/Qdrant are stubs |
+| Embeddings | `embeddings/*` | one embedding backend | OpenAI, sentence-transformers implemented |
+| Ingestion | `loaders/*` | text extraction, with automatic OCR fallback for scanned PDFs | done (text, PDF+OCR) |
+| Chunking | `chunking.py` | splits text into overlapping, whitespace-safe chunks | done |
 
-All four pluggable layers (`LLMProvider`, `VectorStore`, `Embedder`, and
-document loaders) are `Protocol`-based: `rag-gate`'s core never imports a
-specific vendor SDK directly, so swapping Chroma for pgvector or Ollama for
-Anthropic never touches `gate.py` or `guardrails.py`.
+`LLMProvider`, `VectorStore`, and `Embedder` are `Protocol`-based (see
+`docs/adr/0002`): `rag-gate`'s core never imports a specific vendor SDK
+directly — every provider/store/embedder implementation imports its SDK
+lazily and raises a clear `ImportError` naming the extra to install when
+it's missing, so swapping Chroma for pgvector or Ollama for Anthropic never
+touches `gate.py`, `retriever.py`, or `guardrails.py`.
 
 ## 4. Design principles
 
@@ -63,11 +66,12 @@ Anthropic never touches `gate.py` or `guardrails.py`.
 - **The coverage map is auditable by a non-engineer.** It is a plain
   YAML/JSON file — `topic → [documents]` — that a domain expert can read
   and correct without touching code.
-- **Document tagging is conservative by default.** A document is only
-  considered to cover a topic if that's stated explicitly (a manifest
-  entry), inferred from its filename/folder, or found by keyword match in
-  its text — in that order. When nothing matches, the gate treats the
-  topic as undocumented rather than guessing.
+- **Document tagging is conservative by default.** As of Phase 1, the
+  coverage map is a hand-written `topic → [documents]` file — there is no
+  automatic inference yet. A planned Phase 2+ addition is an *optional*
+  cascade (explicit manifest entry → filename/folder → keyword match in
+  text) to help populate the map, always erring toward leaving a topic
+  undocumented over guessing wrong.
 - **Nothing about the core is domain-specific.** `gate.py` and
   `guardrails.py` operate on generic `Document`, `Chunk`, and `Answer`
   types — the same core works for HR policies, technical manuals, or API
@@ -78,11 +82,11 @@ Anthropic never touches `gate.py` or `guardrails.py`.
 See the repository's [issues](https://github.com/jeffersonwagner/rag-gate/issues)
 and [`docs/adr/`](adr) for in-progress design decisions. At a high level:
 
-| Phase | Deliverables |
-|---|---|
-| 0 — Setup | repository, license, CI, project skeleton, first ADR |
-| 1 — Core | gate, coverage map, guardrails, pluggable interfaces, one reference implementation per interface |
-| 2 — DX & examples | CLI, two runnable examples, quickstart docs |
-| 3 — Packaging | PyPI release, docs site, hallucination-rate benchmark |
-| 4 — Launch | public announcement |
-| 5 — Post-launch | issue triage, community-requested integrations |
+| Phase | Deliverables | Status |
+|---|---|---|
+| 0 — Setup | repository, license, CI, project skeleton, first ADR | done |
+| 1 — Core | gate, coverage map, guardrails, pluggable interfaces, reference implementations (in-memory + Chroma stores, OpenAI + sentence-transformers embeddings, Anthropic/OpenAI/Ollama providers, text/PDF+OCR loaders) | done |
+| 2 — DX & examples | CLI, two runnable examples, quickstart docs | next |
+| 3 — Packaging | PyPI release, docs site, hallucination-rate benchmark | planned |
+| 4 — Launch | public announcement | planned |
+| 5 — Post-launch | issue triage, community-requested integrations | planned |

@@ -44,11 +44,33 @@ LlamaIndex, without asking you to adopt a whole new framework.
 
 ## Status
 
-This repository is in **Phase 0**: repository setup, license, CI, and the
-project skeleton. The core logic (`gate.py`, `guardrails.py`, the pluggable
-provider/store/embedding interfaces) lands in Phase 1. See
+**Phase 1 complete.** The core is implemented and tested: the gate, the
+coverage map (YAML/JSON), citation verification, and the gated retriever,
+plus reference backends — `InMemoryStore` and `ChromaStore` for vectors,
+OpenAI/sentence-transformers for embeddings, and Anthropic/OpenAI/Ollama
+for generation. There is no CLI or end-to-end example yet — `rag-gate ask`
+and friends, plus the two runnable examples, land in Phase 2. See
 [`docs/architecture.md`](docs/architecture.md) for the full design and
 [`docs/adr/`](docs/adr) for the reasoning behind each decision.
+
+```python
+from rag_gate.coverage import CoverageMap
+from rag_gate.gate import DocumentGate
+from rag_gate.retriever import GatedRetriever
+from rag_gate.guardrails import build_answer
+from rag_gate.stores.memory import InMemoryStore
+from rag_gate.embeddings.openai import OpenAIEmbedder
+
+gate = DocumentGate(CoverageMap.from_file("coverage.yaml"))
+retriever = GatedRetriever(gate, InMemoryStore(), OpenAIEmbedder())
+
+decision, chunks = retriever.retrieve("payroll", "when do I get paid?")
+if not decision.allowed:
+    print(decision.missing_documents_hint)
+else:
+    llm_answer = my_llm_provider.generate(build_prompt(chunks, "when do I get paid?"))
+    answer = build_answer(llm_answer, [c.id for c in chunks])
+```
 
 ## Project layout
 
@@ -72,7 +94,9 @@ src/rag_gate/
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --all-extras
+# Skips sentence-transformers on purpose — it pulls in a multi-GB PyTorch
+# download. Add --extra sentence-transformers if you need that backend.
+uv sync --extra dev --extra anthropic --extra openai --extra ollama --extra chroma --extra pdf
 uv run pytest
 uv run ruff check .
 ```

@@ -23,7 +23,14 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --python ${{ matrix.python-version }}
+        # Deliberately not --all-extras: sentence-transformers pulls in a
+        # multi-GB PyTorch/CUDA download, and pgvector/qdrant have no live
+        # backend in this CI. Those paths are covered by mocked unit tests
+        # instead — see docs/architecture.md.
+        run: >
+          uv sync --python ${{ matrix.python-version }}
+          --extra dev --extra anthropic --extra openai --extra ollama
+          --extra chroma --extra pdf
 
       - name: Lint with ruff
         run: uv run ruff check .

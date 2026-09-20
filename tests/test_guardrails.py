@@ -1,6 +1,6 @@
 """Unit tests for citation extraction and verification."""
 
-from rag_gate.guardrails import extract_citations, is_fully_cited
+from rag_gate.guardrails import build_answer, extract_citations, is_fully_cited
 
 
 def test_extracts_valid_citations_in_range():
@@ -25,3 +25,16 @@ def test_no_citations_is_not_fully_cited():
 def test_fully_cited_requires_every_citation_valid():
     citations = extract_citations("A [1] and B [2].", ["chunk-a"])
     assert is_fully_cited("A [1] and B [2].", citations) is False
+
+
+def test_build_answer_fully_cited():
+    answer = build_answer("Reset the password [1].", ["chunk-a"])
+    assert answer.text == "Reset the password [1]."
+    assert answer.fully_cited is True
+    assert answer.citations[0].chunk_id == "chunk-a"
+
+
+def test_build_answer_flags_uncited_claims():
+    answer = build_answer("This is a claim with no citation.", ["chunk-a"])
+    assert answer.fully_cited is False
+    assert answer.citations == []

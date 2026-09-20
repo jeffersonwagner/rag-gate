@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from rag_gate.schemas import Citation
+from rag_gate.schemas import Answer, Citation
 
 _CITATION_RE = re.compile(r"\[(\d+)]")
 
@@ -44,3 +44,14 @@ def is_fully_cited(text: str, citations: list[Citation]) -> bool:
     if not citations:
         return False
     return all(c.valid for c in citations)
+
+
+def build_answer(text: str, retrieved_chunk_ids: list[str]) -> Answer:
+    """Run the full guardrail pass and return a checked :class:`Answer`.
+
+    This is the function callers should reach for after generation: it
+    extracts and verifies citations in one step, so an unverified LLM
+    response never accidentally reaches the caller as if it were checked.
+    """
+    citations = extract_citations(text, retrieved_chunk_ids)
+    return Answer(text=text, citations=citations, fully_cited=is_fully_cited(text, citations))
