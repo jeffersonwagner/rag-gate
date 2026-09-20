@@ -9,7 +9,7 @@
 > público possível — este arquivo é atualizado por conveniência, mas pode
 > ficar levemente atrás do README em inglês.
 
-> Status: desenvolvimento inicial (Fase 0 — esqueleto do projeto). Ainda não
+> Status: desenvolvimento inicial (Fase 2 — CLI e exemplos). Ainda não
 > publicado no PyPI.
 
 ## O problema
@@ -51,14 +51,38 @@ sobre LangChain ou LlamaIndex, sem exigir que você adote um framework novo.
 
 ## Status
 
-**Fase 1 concluída.** O núcleo está implementado e testado: o gate, o mapa
-de cobertura (YAML/JSON), a verificação de citação e o retriever com gate
-embutido, além de implementações de referência — `InMemoryStore` e
-`ChromaStore` para vetores, OpenAI/sentence-transformers para embeddings, e
-Anthropic/OpenAI/Ollama para geração. Ainda não há CLI nem exemplo
-end-to-end — isso chega na Fase 2. Veja [`docs/architecture.md`](docs/architecture.md)
-para o desenho completo e [`docs/adr/`](docs/adr) para o raciocínio por
-trás de cada decisão.
+**Fase 2 (CLI e exemplos) concluída.** A biblioteca e o CLI funcionam de
+ponta a ponta. Veja [`docs/architecture.md`](docs/architecture.md) para o
+desenho completo e [`docs/adr/`](docs/adr) para o raciocínio por trás de
+cada decisão.
+
+### Experimente em dois minutos — sem chave de API
+
+```bash
+uv sync --extra dev --extra chroma
+uv run python examples/helpdesk_bot/demo.py
+```
+
+Isso mostra as duas garantias centrais do `rag-gate` com documentos de
+exemplo já no repositório: uma pergunta documentada recupera trechos reais,
+e uma pergunta sem documentação é recusada **antes** de qualquer chamada ao
+LLM. Veja [`examples/`](examples) para os dois exemplos rodáveis.
+
+### CLI
+
+```bash
+rag-gate init meu-projeto && cd meu-projeto
+# coloque alguns arquivos .txt/.md/.pdf em documents/, depois:
+rag-gate ingest documents --topic politica-rh
+rag-gate ask "quantos dias de trabalho remoto são permitidos?" --topic politica-rh
+```
+
+Por padrão, `ingest`/`ask` usam o `HashingEmbedder` (sem dependências, sem
+chave de API, mas com qualidade de recuperação menor — veja `docs/adr/0003`)
+e um Chroma local persistido em `.rag-gate/chroma`. Use `--embedder openai`
+(com `OPENAI_API_KEY` configurada) para qualidade real de recuperação, e
+`--provider anthropic|openai|ollama` para escolher o LLM que gera a
+resposta final.
 
 ## Desenvolvimento
 

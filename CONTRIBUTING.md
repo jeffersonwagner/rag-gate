@@ -1,16 +1,20 @@
 # Contributing
 
-Thanks for your interest in `rag-gate`. The core (Phase 1) is implemented
-and tested — see [`docs/architecture.md`](docs/architecture.md) for what's
-done and what's next. The CLI and runnable examples (Phase 2) are still
-being built, so the project isn't taking large external contributions yet,
-but feedback, bug reports, and small fixes are welcome.
+Thanks for your interest in `rag-gate`. The core, CLI, and two runnable
+examples (Phases 0-2) are implemented and tested — see
+[`docs/architecture.md`](docs/architecture.md) for what's done and what's
+next. Packaging and launch (Phases 3-4) are still ahead, so the project
+isn't taking large external contributions yet, but feedback, bug reports,
+and small fixes are welcome.
 
 Good places to help right now:
 
 - `stores/pgvector.py` and `stores/qdrant.py` are typed stubs — a real
   implementation with a docker-compose-based integration test would be
   very welcome.
+- `tests/test_providers_live.py` only covers Anthropic and OpenAI — an
+  equivalent opt-in smoke test against a local Ollama server would close
+  the gap (see `docs/adr/0004` for why these exist).
 - Anything in `docs/adr/` you disagree with — open an issue with the
   alternative and the trade-off.
 

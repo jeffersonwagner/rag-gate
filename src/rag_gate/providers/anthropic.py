@@ -28,7 +28,11 @@ class AnthropicProvider:
         response = client.messages.create(
             model=self.model,
             max_tokens=4096,
-            temperature=temperature,
             messages=[{"role": "user", "content": prompt}],
+            # `temperature` was dropped from the typed `messages.create()`
+            # signature in recent SDK versions (verified against the
+            # installed 1.7.0: passing it directly raises a TypeError), but
+            # the API still accepts it as a body field via `extra_body`.
+            extra_body={"temperature": temperature},
         )
         return "".join(block.text for block in response.content if block.type == "text")

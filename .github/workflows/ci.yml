@@ -35,5 +35,11 @@ jobs:
       - name: Lint with ruff
         run: uv run ruff check .
 
+      - name: Type check with mypy
+        run: uv run mypy src/rag_gate
+
       - name: Run tests
+        # Includes the example scripts (tests/test_examples.py); the live
+        # provider smoke tests (test_providers_live.py) skip themselves —
+        # no vendor credentials are configured in this CI.
         run: uv run pytest --cov=rag_gate --cov-report=term-missing

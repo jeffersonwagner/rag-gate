@@ -86,7 +86,7 @@ and [`docs/adr/`](adr) for in-progress design decisions. At a high level:
 |---|---|---|
 | 0 — Setup | repository, license, CI, project skeleton, first ADR | done |
 | 1 — Core | gate, coverage map, guardrails, pluggable interfaces, reference implementations (in-memory + Chroma stores, OpenAI + sentence-transformers embeddings, Anthropic/OpenAI/Ollama providers, text/PDF+OCR loaders) | done |
-| 2 — DX & examples | CLI, two runnable examples, quickstart docs | next |
-| 3 — Packaging | PyPI release, docs site, hallucination-rate benchmark | planned |
+| 2 — DX & examples | CLI (`init`/`ingest`/`ask`/`doctor`), a zero-setup `HashingEmbedder` default, two runnable examples, quickstart docs | done |
+| 3 — Packaging | PyPI release, docs site, hallucination-rate benchmark | next |
 | 4 — Launch | public announcement | planned |
 | 5 — Post-launch | issue triage, community-requested integrations | planned |

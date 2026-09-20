@@ -35,6 +35,29 @@ class CoverageMap:
         """Return every topic with at least one document mapped to it."""
         return [topic for topic, documents in self._mapping.items() if documents]
 
+    def add(self, topic: str, document_ids: list[str]) -> None:
+        """Map ``document_ids`` to ``topic``, in place, without duplicates."""
+        existing = self._mapping.setdefault(topic, [])
+        for document_id in document_ids:
+            if document_id not in existing:
+                existing.append(document_id)
+
+    def to_dict(self) -> dict[str, list[str]]:
+        """Return a plain copy of the underlying mapping."""
+        return {topic: list(documents) for topic, documents in self._mapping.items()}
+
+    def save(self, path: str | Path) -> None:
+        """Write this coverage map to ``path`` as YAML.
+
+        This rewrites the whole file — comments and key order in a
+        hand-edited file are not preserved. Fine for the CLI's own writes;
+        keep hand-curated coverage maps under version control so a rewrite
+        is always a reviewable diff.
+        """
+        Path(path).write_text(
+            yaml.safe_dump(self.to_dict(), sort_keys=True), encoding="utf-8"
+        )
+
     @classmethod
     def from_file(cls, path: str | Path) -> CoverageMap:
         """Load a coverage map from a YAML or JSON file.

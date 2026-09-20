@@ -57,3 +57,26 @@ def test_from_file_rejects_malformed_yaml(tmp_path):
 def test_topics_excludes_empty_entries():
     coverage = CoverageMap({"billing": ["doc-1"], "payroll": []})
     assert coverage.topics() == ["billing"]
+
+
+def test_add_creates_new_topic():
+    coverage = CoverageMap()
+    coverage.add("billing", ["doc-1", "doc-2"])
+    assert coverage.documents_for("billing") == ["doc-1", "doc-2"]
+
+
+def test_add_deduplicates_existing_documents():
+    coverage = CoverageMap({"billing": ["doc-1"]})
+    coverage.add("billing", ["doc-1", "doc-2"])
+    assert coverage.documents_for("billing") == ["doc-1", "doc-2"]
+
+
+def test_save_then_from_file_roundtrips(tmp_path):
+    coverage = CoverageMap()
+    coverage.add("billing", ["doc-1"])
+    path = tmp_path / "coverage.yaml"
+
+    coverage.save(path)
+    reloaded = CoverageMap.from_file(path)
+
+    assert reloaded.documents_for("billing") == ["doc-1"]

@@ -4,7 +4,7 @@
 
 [Leia em português](README.pt-BR.md)
 
-> Status: early development (Phase 0 — scaffolding). Not yet published on PyPI.
+> Status: early development (Phase 2 — CLI and examples). Not yet published on PyPI.
 
 ## The problem
 
@@ -44,32 +44,60 @@ LlamaIndex, without asking you to adopt a whole new framework.
 
 ## Status
 
-**Phase 1 complete.** The core is implemented and tested: the gate, the
-coverage map (YAML/JSON), citation verification, and the gated retriever,
-plus reference backends — `InMemoryStore` and `ChromaStore` for vectors,
-OpenAI/sentence-transformers for embeddings, and Anthropic/OpenAI/Ollama
-for generation. There is no CLI or end-to-end example yet — `rag-gate ask`
-and friends, plus the two runnable examples, land in Phase 2. See
-[`docs/architecture.md`](docs/architecture.md) for the full design and
-[`docs/adr/`](docs/adr) for the reasoning behind each decision.
+**Phase 2 (CLI and examples) complete.** Both the library and the CLI work
+end to end today. See [`docs/architecture.md`](docs/architecture.md) for
+the full design and [`docs/adr/`](docs/adr) for the reasoning behind each
+decision.
+
+### Try it in two minutes — no API key needed
+
+```bash
+uv sync --extra dev --extra chroma
+uv run python examples/helpdesk_bot/demo.py
+```
+
+This shows rag-gate's two core guarantees with sample documents bundled
+in the repo: a documented question retrieves real chunks, and an
+undocumented one is refused *before* any LLM would be called. See
+[`examples/`](examples) for both runnable examples.
+
+### CLI
+
+```bash
+rag-gate init my-project && cd my-project
+# put a few .txt/.md/.pdf files in documents/, then:
+rag-gate ingest documents --topic hr-policy
+rag-gate ask "how many remote days are allowed?" --topic hr-policy
+```
+
+By default `ingest`/`ask` use the dependency-free `HashingEmbedder` (no API
+key, but lower retrieval quality — see `docs/adr/0003`) and a local Chroma
+store persisted under `.rag-gate/chroma`. Pass `--embedder openai` (with
+`OPENAI_API_KEY` set) for real retrieval quality, and `--provider
+anthropic|openai|ollama` to pick the LLM that generates the final answer.
+
+### As a library
 
 ```python
 from rag_gate.coverage import CoverageMap
 from rag_gate.gate import DocumentGate
 from rag_gate.retriever import GatedRetriever
 from rag_gate.guardrails import build_answer
+from rag_gate.prompting import build_prompt
 from rag_gate.stores.memory import InMemoryStore
 from rag_gate.embeddings.openai import OpenAIEmbedder
+from rag_gate.providers.anthropic import AnthropicProvider
 
 gate = DocumentGate(CoverageMap.from_file("coverage.yaml"))
 retriever = GatedRetriever(gate, InMemoryStore(), OpenAIEmbedder())
 
-decision, chunks = retriever.retrieve("payroll", "when do I get paid?")
+question = "when do I get paid?"
+decision, chunks = retriever.retrieve("payroll", question)
 if not decision.allowed:
     print(decision.missing_documents_hint)
 else:
-    llm_answer = my_llm_provider.generate(build_prompt(chunks, "when do I get paid?"))
-    answer = build_answer(llm_answer, [c.id for c in chunks])
+    raw_answer = AnthropicProvider().generate(build_prompt(question, chunks))
+    answer = build_answer(raw_answer, [c.id for c in chunks])
 ```
 
 ## Project layout
@@ -80,11 +108,15 @@ src/rag_gate/
 ├── coverage.py         # topic → documents map, auditable (YAML/JSON)
 ├── retriever.py        # retrieval + gate integration
 ├── guardrails.py        # citation extraction and verification
+├── prompting.py          # builds the citation-required LLM prompt
+├── chunking.py           # pure-Python, whitespace-safe text chunking
+├── ingestion.py          # walks a directory into (Document, Chunk) pairs
+├── factories.py          # name -> instance wiring for the CLI's flags
 ├── schemas.py          # Pydantic contracts
 ├── cli.py               # rag-gate init / ingest / ask / doctor
 ├── providers/           # LLM providers: anthropic, openai, ollama
 ├── stores/              # vector stores: chroma, pgvector, memory
-├── embeddings/           # embedding backends
+├── embeddings/           # embedding backends, incl. the zero-setup HashingEmbedder
 ├── loaders/              # document loaders (PDF, OCR fallback, text)
 └── api/                  # optional thin FastAPI wrapper
 ```
@@ -107,6 +139,4 @@ uv run ruff check .
 
 ## Contributing
 
-Not accepting external contributions yet — the core API is still taking
-shape. [`CONTRIBUTING.md`](CONTRIBUTING.md) will be updated once Phase 1
-lands.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).

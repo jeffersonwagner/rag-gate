@@ -1,5 +1,14 @@
-# Example: internal helpdesk bot
+# Example: internal IT helpdesk bot
 
-Coming in Phase 2 — a runnable example wiring `rag-gate` to answer IT
-support questions only from an internal knowledge base, refusing anything
-not covered by a real document.
+Two tiny policy documents (`documents/`) and a self-contained script
+showing rag-gate's two core guarantees end to end — no API key or vector
+database required.
+
+```bash
+uv sync --extra dev  # from the repository root, if you haven't already
+uv run python examples/helpdesk_bot/demo.py
+```
+
+Set `ANTHROPIC_API_KEY` first to also see a real, cited LLM answer for the
+documented question — otherwise the demo prints the prompt that would
+have been sent.

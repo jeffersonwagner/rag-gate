@@ -33,7 +33,8 @@ def test_anthropic_provider_generate(monkeypatch):
 
     assert result == "Reset the password [1]."
     assert captured["model"] == "claude-haiku-4-5"
-    assert captured["temperature"] == 0.2
+    # temperature rides extra_body, not a direct kwarg — see provider docstring
+    assert captured["extra_body"] == {"temperature": 0.2}
     assert captured["api_key"] == "sk-test"
 
 
