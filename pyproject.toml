@@ -64,6 +64,11 @@ select = ["E", "F", "I", "UP", "B"]
 testpaths = ["tests"]
 
 [tool.mypy]
-python_version = "3.11"
+# No pinned python_version: CI runs mypy under 3.11/3.12/3.13, and pinning
+# this to the lowest one made mypy parse a newer numpy's stub file (a
+# transitive Chroma dependency, not imported directly) using pre-3.12
+# syntax rules, hard syntax-erroring on numpy's PEP 695 `type` statement.
+# Leaving it unset makes mypy default to the interpreter actually running
+# it, which always matches whatever numpy version was resolved for it.
 packages = ["rag_gate"]
 ignore_missing_imports = true

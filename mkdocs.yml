@@ -33,6 +33,7 @@ nav:
       - "0003 — Hashing embedder for zero-setup demos": adr/0003-hashing-embedder-for-zero-setup-demos.md
       - "0004 — Anthropic temperature via extra_body": adr/0004-anthropic-temperature-via-extra-body.md
       - "0005 — Hallucination benchmark methodology": adr/0005-hallucination-benchmark-methodology.md
+      - "0006 — mypy python_version matrix mismatch": adr/0006-mypy-python-version-matrix-mismatch.md
 
 markdown_extensions:
   - admonition
