@@ -80,7 +80,8 @@ touches `gate.py`, `retriever.py`, or `guardrails.py`.
 ## 5. Roadmap
 
 See the repository's [issues](https://github.com/jeffersonwagner/rag-gate/issues)
-and [`docs/adr/`](adr) for in-progress design decisions. At a high level:
+and [the ADRs](adr/0001-domain-agnostic-core.md) for in-progress design
+decisions. At a high level:
 
 | Phase | Deliverables | Status |
 |---|---|---|

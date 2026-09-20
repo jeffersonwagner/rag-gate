@@ -4,7 +4,12 @@
 
 [Leia em português](README.pt-BR.md)
 
-> Status: early development (Phase 2 — CLI and examples). Not yet published on PyPI.
+> Status: early development (Phase 3 — packaging). Not yet published on PyPI —
+> see [`docs/RELEASING.md`](docs/RELEASING.md) for what's left.
+
+[Docs site](https://jeffersonwagner.github.io/rag-gate/) ·
+[Benchmark](docs/benchmark.md) ·
+[Changelog](CHANGELOG.md)
 
 ## The problem
 
@@ -44,10 +49,13 @@ LlamaIndex, without asking you to adopt a whole new framework.
 
 ## Status
 
-**Phase 2 (CLI and examples) complete.** Both the library and the CLI work
-end to end today. See [`docs/architecture.md`](docs/architecture.md) for
-the full design and [`docs/adr/`](docs/adr) for the reasoning behind each
-decision.
+**Phase 3 (packaging) in progress.** The library, CLI, docs site, and
+release automation are all in place; the one thing left is the two
+one-time manual steps on PyPI's and GitHub's side described in
+[`docs/RELEASING.md`](docs/RELEASING.md) and below — until then, install
+from source (`pip install -e .` or `uv sync`), not from PyPI. See
+[`docs/architecture.md`](docs/architecture.md) for the full design and
+[`docs/adr/`](docs/adr) for the reasoning behind each decision.
 
 ### Try it in two minutes — no API key needed
 
@@ -100,6 +108,20 @@ else:
     answer = build_answer(raw_answer, [c.id for c in chunks])
 ```
 
+### Benchmark
+
+```bash
+uv run python scripts/benchmark.py
+```
+
+On out-of-scope questions (no matching documentation), a pipeline with no
+gate answers 100% of the time — it has no way to know it shouldn't.
+`rag-gate` refuses 100% of the time, and `tests/test_benchmark.py` holds
+that number as a regression check, not just a demo. See
+[`docs/benchmark.md`](docs/benchmark.md) for methodology and
+[ADR-0005](docs/adr/0005-hallucination-benchmark-methodology.md) for why
+it's scoped this way.
+
 ## Project layout
 
 ```
@@ -121,6 +143,11 @@ src/rag_gate/
 └── api/                  # optional thin FastAPI wrapper
 ```
 
+Elsewhere in the repo: `examples/` (the two runnable demos),
+`scripts/benchmark.py` (the hallucination-rate benchmark), `docs/` (the
+mkdocs site source — architecture, ADRs, benchmark methodology,
+quickstart), and `CHANGELOG.md`.
+
 ## Development
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
@@ -131,7 +158,10 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 uv sync --extra dev --extra anthropic --extra openai --extra ollama --extra chroma --extra pdf
 uv run pytest
 uv run ruff check .
+uv run mypy src/rag_gate
 ```
+
+To build the docs site locally: `uv sync --extra docs && uv run mkdocs serve`.
 
 ## License
 

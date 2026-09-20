@@ -15,6 +15,9 @@ venv/
 .coverage
 htmlcov/
 
+# Built docs site (mkdocs build)
+site/
+
 # Env / secrets
 .env
 *.local

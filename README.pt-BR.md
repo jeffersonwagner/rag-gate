@@ -9,8 +9,12 @@
 > público possível — este arquivo é atualizado por conveniência, mas pode
 > ficar levemente atrás do README em inglês.
 
-> Status: desenvolvimento inicial (Fase 2 — CLI e exemplos). Ainda não
-> publicado no PyPI.
+> Status: desenvolvimento inicial (Fase 3 — empacotamento). Ainda não
+> publicado no PyPI — falta apenas configurar o "trusted publisher" no
+> lado do PyPI (veja [`docs/RELEASING.md`](docs/RELEASING.md), em inglês).
+
+[Site de documentação](https://jeffersonwagner.github.io/rag-gate/) ·
+[Benchmark](docs/benchmark.md) · [Changelog](CHANGELOG.md)
 
 ## O problema
 

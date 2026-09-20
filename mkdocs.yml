@@ -1,0 +1,41 @@
+site_name: rag-gate
+site_description: A hard documentary gate and citation verifier for RAG pipelines.
+site_url: https://jeffersonwagner.github.io/rag-gate/
+repo_url: https://github.com/jeffersonwagner/rag-gate
+repo_name: jeffersonwagner/rag-gate
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Architecture: architecture.md
+  - Benchmark: benchmark.md
+  - Releasing: RELEASING.md
+  - Decision records:
+      - "0001 — Domain-agnostic core": adr/0001-domain-agnostic-core.md
+      - "0002 — Vector-based store interface": adr/0002-vector-based-store-interface.md
+      - "0003 — Hashing embedder for zero-setup demos": adr/0003-hashing-embedder-for-zero-setup-demos.md
+      - "0004 — Anthropic temperature via extra_body": adr/0004-anthropic-temperature-via-extra-body.md
+      - "0005 — Hallucination benchmark methodology": adr/0005-hallucination-benchmark-methodology.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.superfences
+  - pymdownx.highlight

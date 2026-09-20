@@ -10,7 +10,8 @@ uv run python examples/helpdesk_bot/demo.py
 This runs entirely offline (the dependency-free `HashingEmbedder`, no
 network calls) and shows the two guarantees that matter most: a documented
 question retrieves real chunks, and an undocumented one is refused before
-any LLM would be called. See [`examples/compliance_qa`](../examples/compliance_qa)
+any LLM would be called. See
+[`examples/compliance_qa`](https://github.com/jeffersonwagner/rag-gate/tree/main/examples/compliance_qa)
 for a second, compliance-flavored example.
 
 ## CLI
@@ -32,7 +33,8 @@ pick the LLM.
 
 ## As a library
 
-See the [README](../README.md#as-a-library) for the minimal
-`DocumentGate` + `GatedRetriever` + `build_answer` wiring, or read
-[`docs/architecture.md`](architecture.md) for how the pieces fit together
-and [the ADRs](adr/) for why they're built this way.
+See the [README](https://github.com/jeffersonwagner/rag-gate#as-a-library)
+for the minimal `DocumentGate` + `GatedRetriever` + `build_answer` wiring,
+or read [Architecture](architecture.md) for how the pieces fit together
+and [the ADRs](adr/0001-domain-agnostic-core.md) for why they're built
+this way.
